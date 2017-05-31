@@ -1,5 +1,4 @@
-def swap(x, y):
-    x, y = y, x
+from utilities import *
 
 
 class Identity(object):
@@ -25,14 +24,12 @@ class Man(Identity):
 
 
 class Doppelganger(Man):
+    @retry
     def action(self):
-        try:
-            r = int(input('Select one identity in the remainings: '))
-            print(self.remainings[r])
-            p = int(input('Give this identity to one player: '))
-            swap(self.players[p], self.remainings[r])
-        except Exception as e:
-            print('Failure, ignored action')
+        r = int(input('Select one identity in the remainings: '))
+        print(self.remainings[r])
+        p = int(input('Give this identity to one player: '))
+        swap(self.players[p], self.remainings[r])
 
 
 class Minion(Identity):
