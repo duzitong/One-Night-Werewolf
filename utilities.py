@@ -1,3 +1,5 @@
+from server import gameServer
+
 def swap(x, y):
     x, y = y, x
 
@@ -12,3 +14,9 @@ def retry(action):
                 print('Error, try again!\n{}'.format(str(e)))
                 failed = True
     return retryTillSuccess
+
+def getInput(pid, decription = ''):
+    return int(gameServer.get_selection_from_client(pid, decription))
+
+def sendOutput(pid, message):
+    gameServer.broadcast(message)

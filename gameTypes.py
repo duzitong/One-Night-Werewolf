@@ -12,34 +12,52 @@ class Identity(object):
     def action(self):
         raise NotImplementedError(self.action)
 
+    def setId(self, pid):
+        self.pid = pid
+
 
 class Werewolf(Identity):
-    def isBad():
+    def isBad(self):
         return True
 
 
 class Man(Identity):
-    def isBad():
+    def isBad(self):
         return False
 
 
-class Doppelganger(Man):
+class Witch(Man):
     @retry
     def action(self):
-        r = int(input('Select one identity in the remainings: '))
-        print(self.remainings[r])
-        p = int(input('Give this identity to one player: '))
+        r = getInput(self.pid, 'Select one identity in the remainings: ')
+        sendOutput(self.pid, 'Selected identity is: {}'.format(self.remainings[r]))
+        p = getInput(self.pid, 'Give this identity to one player: ')
         swap(self.players[p], self.remainings[r])
 
 
 class Minion(Identity):
-    pass
+    def action(self):
+        wolves = []
+        for i, player in enumerate(self.players):
+            if isinstance(player, Werewolf):
+                wolves.append(i)
+        sendOutput(self.pid, 'Your partners are: {}'.format(wolves))
 
 class Mason(Man):
-    pass
+    def action(self):
+        partner = None
+        for i, player in enumerate(self.players):
+            if isinstance(player, Mason) and player is not self:
+                partner = i
+        if partner:
+            sendOutput(self.pid, 'Your partner is: {}'.format(partner))
+        else:
+            sendOutput(self.pid, 'You have no partner')
 
 class Seer(Man):
-    pass
+    @retry
+    def action(self):
+        pass
 
 class Robber(Man):
     pass
@@ -60,4 +78,10 @@ class Villager(Man):
     pass
 
 class Tanner(Man):
+    pass
+
+class SeniorWerewolf(Werewolf):
+    pass
+
+class JuniorWerewolf(Werewolf):
     pass
