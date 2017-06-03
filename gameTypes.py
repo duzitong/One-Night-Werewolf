@@ -1,4 +1,5 @@
 from utilities import *
+from localization import localize
 
 
 class Identity(object):
@@ -29,9 +30,9 @@ class Man(Identity):
 class Witch(Man):
     @retry
     def action(self):
-        r = getInput(self.pid, 'Select one identity in the remainings: ')
-        sendOutput(self.pid, 'Selected identity is: {}'.format(self.remainings[r]))
-        p = getInput(self.pid, 'Give this identity to one player: ')
+        r = getInput(self.pid, localize('WITCH_LOOK'))
+        sendOutput(self.pid, localize('WITCH_SELECTED').format(self.remainings[r]))
+        p = getInput(self.pid, localize('WITCH_GIVE'))
         swap(self.players[p], self.remainings[r])
 
 
@@ -41,7 +42,10 @@ class Minion(Identity):
         for i, player in enumerate(self.players):
             if isinstance(player, Werewolf):
                 wolves.append(i)
-        sendOutput(self.pid, 'Your partners are: {}'.format(wolves))
+        if wolves:
+            sendOutput(self.pid, localize('MINION_PARTNER').format(wolves))
+        else:
+            sendOutput(self.pid, localize('MINION_NO_PARTNER'))
 
 class Mason(Man):
     def action(self):
@@ -50,9 +54,9 @@ class Mason(Man):
             if isinstance(player, Mason) and player is not self:
                 partner = i
         if partner:
-            sendOutput(self.pid, 'Your partner is: {}'.format(partner))
+            sendOutput(self.pid, localize('Mason_PARTNER').format(partner))
         else:
-            sendOutput(self.pid, 'You have no partner')
+            sendOutput(self.pid, localize('Mason_NO_PARTNER'))
 
 class Seer(Man):
     @retry

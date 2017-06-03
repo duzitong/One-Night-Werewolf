@@ -13,7 +13,7 @@ class ServerThread(threading.Thread):
         gameServer.serve_forever()
 
 
-def start(n):
+def startGame(n):
     allIdentities = [Witch(players, remainings) for i in range(n + 3)]
     random.shuffle(allIdentities)
     for i in range(n):
@@ -34,3 +34,8 @@ def end():
 if __name__ == '__main__':
     t = ServerThread()
     t.start()
+    while True:
+        input('Wait for players...')
+        if len(gameServer.get_clients) == 10:
+            startGame(10)
+            break
