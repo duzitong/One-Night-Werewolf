@@ -55,6 +55,18 @@ translation = {
     },
     'STEP_START': {
         'en': "{}'s turn..."
+    },
+    'VOTE': {
+        'en': 'Your vote: '
+    },
+    'HUNTER_KILL': {
+        'en': 'Vote result is {}.\nSelect one player to kill: '
+    },
+    'MAN_WIN': {
+        'en': 'Men win! Good triumphing over evil!'
+    },
+    'WEREWOLF_WIN': {
+        'en': 'Werewolves win! Deceive the world!'
     }
 }
 

@@ -3,11 +3,27 @@ from gameTypes import *
 import threading
 from server import gameServer
 import time
+from collections import Counter
 
 
 players = []
 remainings = []
-WOLF_TIME = 60
+allIdentities = [
+    JuniorWerewolf(players, remainings),
+    SeniorWerewolf(players, remainings),
+    Minion(players, remainings),
+    Mason(players, remainings),
+    Mason(players, remainings),
+    Seer(players, remainings),
+    Witch(players, remainings),
+    Robber(players, remainings),
+    Troublemaker(players, remainings),
+    Drunk(players, remainings),
+    Insomniac(players, remainings),
+    Hunter(players, remainings),
+    Hunter(players, remainings)
+]
+WOLF_TIME = 45
 MAN_TIME = 20
 
 
@@ -17,21 +33,6 @@ class ServerThread(threading.Thread):
 
 
 def startGame(n):
-    allIdentities = [
-        JuniorWerewolf(players, remainings),
-        SeniorWerewolf(players, remainings),
-        Minion(players, remainings),
-        Mason(players, remainings),
-        Mason(players, remainings),
-        Seer(players, remainings),
-        Witch(players, remainings),
-        Robber(players, remainings),
-        Troublemaker(players, remainings),
-        Drunk(players, remainings),
-        Insomniac(players, remainings),
-        Hunter(players, remainings),
-        Hunter(players, remainings)
-    ]
     random.shuffle(allIdentities)
     for i in range(n):
         players.append(allIdentities[i])
@@ -53,16 +54,45 @@ def startGame(n):
         else:
             pass
 
-def end():
-    pass
+def endGame():
+    votes = gameServer.get_votes(localize('VOTE'))
+    frequency = Counter(votes.values())
+    manWin = False
+    for i in range(1, len(frequency)):
+        if len(set(Counter.most_common(i).values)) != 1:
+            others = []
+            for pid in Counter.most_common(i-1).keys:
+                if isinstance(allIdentities[pid], Hunter):
+                    others.append(allIdentities[pid].kill_another(votes))
+                elif isinstance(allIdentities[pid], Werewolf):
+                    manWin = True
+                else:
+                    pass
+            break
+            if not manWin:
+                for other in others:
+                    if isinstance(allIdentities[other], Werewolf):
+                        manWin = True
+            gameServer.broadcast(localize('MAN_WIN') if manWin else localize('WEREWOLF_WIN'))
+    else:
+        for player in players:
+            if isinstance(player, Werewolf):
+                gameServer.broadcast(localize('WEREWOLF_WIN'))
+                break
+        else:
+            gameServer.broadcast(localize('MAN_WIN'))
 
 if __name__ == '__main__':
-    t = ServerThread()
-    t.start()
-    while True:
-        input('Wait for players...')
-        if len(gameServer.get_clients) == 10:
-            startGame(10)
-            input('Gaming...')
-            end()
-            break
+    if DEBUG:
+        startGame(10)
+        endGame()
+    else:
+        t = ServerThread()
+        t.start()
+        while True:
+            input('Wait for players...')
+            if len(gameServer.get_clients) == 10:
+                startGame(10)
+                input('Gaming...')
+                endGame()
+                break

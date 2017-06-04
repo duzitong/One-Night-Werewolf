@@ -122,7 +122,11 @@ class Insomniac(Man):
 
 
 class Hunter(Man):
-    pass
+    @retry
+    def kill_another(self, votes):
+        toKill = int(getInput(self.pid, localize('HUNTER_KILL').format(votes)))
+        assert toKill < len(self.players)
+        return toKill
 
 
 class Villager(Man):
