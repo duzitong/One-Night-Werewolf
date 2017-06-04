@@ -2,6 +2,8 @@ import pickle
 import queue
 import select
 import socketserver
+import threading
+from utilities import retry
 
 
 class GameServer(socketserver.ThreadingTCPServer):
@@ -21,8 +23,22 @@ class GameServer(socketserver.ThreadingTCPServer):
     def remove_client(self, client):
         self.clients.remove(client)
 
+    def send_message(self, playerId, message):
+        self.clients[playerId].schedule(message)
+
     def get_selection_from_client(self, playerId, description):
         self.clients[playerId].getResponse(description)
+
+    def get_votes(self, description):
+        results = {}
+        vthreads = []
+        for i, client in enumerate(self.clients):
+            vt = VoteThread(client, description, results, i)
+            vthreads.append(vt)
+            vt.start()
+        for vt in vthreads:
+            vt.join()
+        return results
 
     def get_clients(self):
         return self.clients
@@ -74,6 +90,18 @@ class IOHandler(socketserver.StreamRequestHandler):
         self.server.remove_client(self)
         print('{} exited'.format(self.name))
         super().finish()
+
+
+class VoteThread(threading.Thread):
+    def __init__(self, client, description, results, pid):
+        self.client = client
+        self.description = description
+        self.results = results
+        self.pid = pid
+
+    @retry
+    def run(self):
+        self.results[self.pid] = int(self.client.getResponse(self.description))
 
 
 gameServer = GameServer(('localhost', 19420), IOHandler)
