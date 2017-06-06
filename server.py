@@ -53,7 +53,8 @@ class IOHandler(socketserver.StreamRequestHandler):
     def setup(self):
         super().setup()
         self.server.add_client(self)
-        print('{} entered'.format(self.name))
+        self.nickname = self.getNicknameFromPeer()
+        print('{}:{} entered'.format(self.nickname, self.name))
 
     def handle(self):
         try:
@@ -85,6 +86,12 @@ class IOHandler(socketserver.StreamRequestHandler):
                 message = pickle.load(self.rfile)
                 print(message)
                 return message
+
+    def getNicknameFromPeer(self):
+        while True:
+            if self.readable:
+                nickname = pickle.load(self.rfile)
+                return nickname
 
     def finish(self):
         self.server.remove_client(self)

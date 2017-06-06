@@ -7,12 +7,13 @@ import threading
 class User(threading.Thread):
 
 
-    def __init__(self, connection):
+    def __init__(self, connection, nickname):
         threading.Thread.__init__(self)
         self.connection = connection
         self.reader = connection.makefile('rb', -1)
         self.writer = connection.makefile('wb', 0)
         self.handlers = dict(print=print, input=self.forward_input)
+        self.nickname = nickname
         self.alive = True
 
     def cleanup(self):
@@ -23,6 +24,7 @@ class User(threading.Thread):
 
     def run(self):
         try:
+            self.call(self.nickname)
             while self.alive:
                 self.handle_server_command()
         except (BrokenPipeError, ConnectionResetError):
@@ -45,5 +47,5 @@ class User(threading.Thread):
 
 
 if __name__ == '__main__':
-    client = User(socket.create_connection(('localhost', 19420)))
+    client = User(socket.create_connection(('localhost', 19420)), 'dubeat')
     client.start()

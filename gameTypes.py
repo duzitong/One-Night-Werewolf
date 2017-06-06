@@ -1,4 +1,5 @@
 from utilities import *
+from communication import *
 from localization import localize
 
 
