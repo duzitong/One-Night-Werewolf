@@ -2,6 +2,7 @@ import cmd
 import pickle
 import socket
 import threading
+import sys
 
 
 class User(threading.Thread):
@@ -47,5 +48,5 @@ class User(threading.Thread):
 
 
 if __name__ == '__main__':
-    client = User(socket.create_connection(('localhost', 19420)), 'dubeat')
+    client = User(socket.create_connection(('localhost', 19420)), sys.argv[1] if len(sys.argv) > 1 else '')
     client.start()

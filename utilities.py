@@ -1,8 +1,3 @@
-DEBUG = False
-
-def swap(x, y):
-    x, y = y, x
-
 def retry(action):
     def retryTillSuccess(*args):
         failed = True

@@ -53,7 +53,7 @@ class Witch(Man):
         r = int(getInput(self.pid, localize('WITCH_LOOK')))
         sendOutput(self.pid, localize('WITCH_SELECTED').format(self.remainings[r]))
         p = int(getInput(self.pid, localize('WITCH_GIVE')))
-        swap(self.players[p], self.remainings[r])
+        self.players[p], self.remainings[r] = self.remainings[r], self.players[p]
 
 
 class Minion(Identity):
@@ -74,10 +74,10 @@ class Mason(Man):
         for i, player in enumerate(self.players):
             if isinstance(player, Mason) and player is not self:
                 partner = i
-        if partner:
-            sendOutput(self.pid, localize('Mason_PARTNER').format(partner))
+        if partner is not None:
+            sendOutput(self.pid, localize('MASON_PARTNER').format(partner))
         else:
-            sendOutput(self.pid, localize('Mason_NO_PARTNER'))
+            sendOutput(self.pid, localize('MASON_NO_PARTNER'))
 
 
 class Seer(Man):
@@ -97,7 +97,8 @@ class Robber(Man):
     @retry
     def action(self):
         p = int(getInput(self.pid, localize('ROBBER_SELECT')))
-        swap(self.players[self.pid], self.players[p])
+        assert p != self.pid
+        self.players[self.pid], self.players[p] = self.players[p], self.players[self.pid]
         sendOutput(self.pid, localize('ROBBER_KEEP').format(self.players[self.pid]))
 
 
@@ -105,16 +106,16 @@ class Troublemaker(Man):
     @retry
     def action(self):
         p1, p2 = getInput(self.pid, localize('TROUBLEMAKER_SELECT')).split()
-        if p1 == self.pid or p2 == self.pid:
-            raise Exception('Self selected')
-        swap(self.players[p1], self.players[p2])
+        p1, p2 = int(p1), int(p2)
+        assert p1 != self.pid and p2 != self.pid
+        self.players[p1], self.players[p2] = self.players[p2], self.players[p1]
 
 
 class Drunk(Man):
     @retry
     def action(self):
         r = int(getInput(self.pid, localize('DRUNK_SELECT')))
-        swap(self.players[self.pid], self.remainings[r])
+        self.players[self.pid], self.remainings[r] = self.remainings[r], self.players[self.pid]
 
 
 class Insomniac(Man):
@@ -141,7 +142,7 @@ class Tanner(Man):
 class SeniorWerewolf(Werewolf):
     @retry
     def action_senoir(self):
-        p = getInput(self.pid, localize('SENIOR_WOLF_LOOK'))
+        p = int(getInput(self.pid, localize('SENIOR_WOLF_LOOK')))
         sendOutput(self.pid, localize('SENIOR_WOLF_SELECTED').format(self.players[p]))
 
 

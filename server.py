@@ -27,21 +27,25 @@ class GameServer(socketserver.ThreadingTCPServer):
         self.clients[playerId].schedule(message)
 
     def get_selection_from_client(self, playerId, description):
-        self.clients[playerId].getResponse(description)
+        return self.clients[playerId].getResponse(description)
 
     def get_votes(self, description):
         results = {}
         vthreads = []
         for i, client in enumerate(self.clients):
-            vt = VoteThread(client, description, results, i)
+            vt = VoteThread(client, description, results, i, self.get_client_count())
             vthreads.append(vt)
             vt.start()
         for vt in vthreads:
             vt.join()
         return results
 
-    def get_clients(self):
-        return self.clients
+    def get_client_count(self):
+        return len(self.clients)
+
+    def broadcast_players(self):
+        nicknames = '\n'.join(['{}: {}'.format(i, client.nickname) for i, client in enumerate(self.clients)])
+        self.broadcast(nicknames)
 
 
 class IOHandler(socketserver.StreamRequestHandler):
@@ -84,7 +88,6 @@ class IOHandler(socketserver.StreamRequestHandler):
         while True:
             if self.readable:
                 message = pickle.load(self.rfile)
-                print(message)
                 return message
 
     def getNicknameFromPeer(self):
@@ -100,15 +103,18 @@ class IOHandler(socketserver.StreamRequestHandler):
 
 
 class VoteThread(threading.Thread):
-    def __init__(self, client, description, results, pid):
+    def __init__(self, client, description, results, pid, limit):
         self.client = client
         self.description = description
         self.results = results
         self.pid = pid
+        self.limit = limit
+        super(VoteThread, self).__init__()
 
     @retry
     def run(self):
-        self.results[self.pid] = int(self.client.getResponse(self.description))
-
+         vote = int(self.client.getResponse(self.description))
+         assert vote < self.limit
+         self.results[self.pid] = vote
 
 gameServer = GameServer(('localhost', 19420), IOHandler)

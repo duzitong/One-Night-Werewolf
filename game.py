@@ -23,8 +23,8 @@ allIdentities = [
     Hunter(players, remainings),
     Hunter(players, remainings)
 ]
-WOLF_TIME = 45
-MAN_TIME = 20
+WOLF_TIME = 25
+MAN_TIME = 10
 
 
 class ServerThread(threading.Thread):
@@ -37,13 +37,14 @@ def startGame(n):
     for i in range(n):
         players.append(allIdentities[i])
         players[i].setId(i)
+        sendOutput(i, localize('YOU_ARE').format(players[i]))
     for i in range(n, n+3):
         remainings.append(allIdentities[i])
 
     steps = [Werewolf, Minion, Mason, Seer, Witch, Robber, Troublemaker, Drunk, Insomniac]
     for step in steps:
         btime = time.time()
-        gameServer.broadcast(localize('STEP_START').format(step.__name__))
+        broadcast(localize('STEP_START').format(step.__name__))
         for player in allIdentities[:n]:
             if isinstance(player, step):
                 player.action()
@@ -59,7 +60,7 @@ def endGame():
     frequency = Counter(votes.values())
     manWin = False
     for i in range(1, len(frequency)):
-        if len(set(Counter.most_common(i).values)) != 1:
+        if len(set(Counter(frequency).most_common(i).values)) != 1:
             others = []
             for pid in Counter.most_common(i-1).keys:
                 if isinstance(allIdentities[pid], Hunter):
@@ -69,30 +70,28 @@ def endGame():
                 else:
                     pass
             break
-            if not manWin:
-                for other in others:
-                    if isinstance(allIdentities[other], Werewolf):
-                        manWin = True
-            gameServer.broadcast(localize('MAN_WIN') if manWin else localize('WEREWOLF_WIN'))
+        if not manWin:
+            for other in others:
+                if isinstance(allIdentities[other], Werewolf):
+                    manWin = True
+        broadcast(localize('MAN_WIN') if manWin else localize('WEREWOLF_WIN'))
     else:
         for player in players:
             if isinstance(player, Werewolf):
-                gameServer.broadcast(localize('WEREWOLF_WIN'))
+                broadcast(localize('WEREWOLF_WIN'))
                 break
         else:
-            gameServer.broadcast(localize('MAN_WIN'))
+            broadcast(localize('MAN_WIN'))
 
 if __name__ == '__main__':
-    if DEBUG:
-        startGame(10)
-        endGame()
-    else:
-        t = ServerThread()
-        t.start()
-        while True:
+    t = ServerThread()
+    t.start()
+    while True:
+        try:
             input('Wait for players...')
-            if len(gameServer.get_clients) == 10:
-                startGame(10)
+            if gameServer.get_client_count() <= 10:
+                startGame(gameServer.get_client_count())
                 input('Gaming...')
                 endGame()
-                break
+        except Exception as e:
+            print(e)

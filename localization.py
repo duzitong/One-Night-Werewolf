@@ -14,10 +14,10 @@ translation = {
     'MINION_NO_PARTNER': {
         'en': 'Your have no partner.'
     },
-    'Mason_PARTNER': {
+    'MASON_PARTNER': {
         'en': 'Your partner is: {}.'
     },
-    'Mason_NO_PARTNER': {
+    'MASON_NO_PARTNER': {
         'en': 'Your have no partner.'
     },
     'SEER_LOOK': {
@@ -53,6 +53,12 @@ translation = {
     'ONLY_WOLF_SELECTED': {
         'en': 'Selected identity is: {}.'
     },
+    'SENIOR_WOLF_LOOK': {
+        'en': 'You are a senior werewolf, select one player to check: '
+    },
+    'SENIOR_WOLF_SELECTED': {
+        'en': 'Selected player is: {}.'
+    },
     'STEP_START': {
         'en': "{}'s turn..."
     },
@@ -67,11 +73,14 @@ translation = {
     },
     'WEREWOLF_WIN': {
         'en': 'Werewolves win! Deceive the world!'
+    },
+    'YOU_ARE': {
+        'en': 'You are: {}'
     }
 }
 
 location = 'en'
 
 def localize(key):
-    assert key.upper in location
+    assert key.upper() in translation
     return translation[key.upper()][location]
