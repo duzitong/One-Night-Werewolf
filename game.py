@@ -90,6 +90,7 @@ if __name__ == '__main__':
         try:
             input('Wait for players...')
             if gameServer.get_client_count() <= 10:
+                gameServer.broadcast_players()
                 startGame(gameServer.get_client_count())
                 input('Gaming...')
                 endGame()
