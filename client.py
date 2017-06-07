@@ -28,9 +28,11 @@ class User(threading.Thread):
             self.call(self.nickname)
             while self.alive:
                 self.handle_server_command()
-        except (BrokenPipeError, ConnectionResetError):
-            pass
-        self.cleanup
+        except (BrokenPipeError, ConnectionResetError) as e:
+            print('Connection broken...')
+            raise e
+        finally:
+            self.cleanup()
 
     def handle_server_command(self):
         function, message = pickle.load(self.reader)
@@ -48,5 +50,11 @@ class User(threading.Thread):
 
 
 if __name__ == '__main__':
-    client = User(socket.create_connection(('localhost', 19420)), sys.argv[1] if len(sys.argv) > 1 else '')
-    client.start()
+    nickname = input('Please input your nickname: ')
+    while (True):
+        try:
+            client = User(socket.create_connection(('localhost', 19420)), nickname)
+            client.start()
+            break
+        except Exception as e:
+            pass
