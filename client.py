@@ -1,8 +1,6 @@
-import cmd
 import pickle
 import socket
 import threading
-import sys
 
 
 class User(threading.Thread):

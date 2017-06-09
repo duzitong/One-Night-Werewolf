@@ -4,6 +4,7 @@ import threading
 from server import gameServer
 import time
 from collections import Counter
+import traceback
 
 
 players = []
@@ -34,6 +35,8 @@ class ServerThread(threading.Thread):
 
 def startGame(n):
     random.shuffle(allIdentities)
+    del players[:]
+    del remainings[:]
     for i in range(n):
         players.append(allIdentities[i])
         players[i].setId(i)
@@ -56,32 +59,41 @@ def startGame(n):
             pass
 
 def endGame():
-    votes = gameServer.get_votes(localize('VOTE'))
+    votes = gameServer.get_votes(localize('VOTE'), len(players))
+    for i, player in enumerate(players):
+        sendOutput(i, localize('YOUR_FINAL_IDENTITY').format(player))
     frequency = Counter(votes.values())
-    manWin = False
-    for i in range(1, len(frequency)):
-        if len(set(Counter(frequency).most_common(i).values)) != 1:
-            others = []
-            for pid in Counter.most_common(i-1).keys:
-                if isinstance(allIdentities[pid], Hunter):
-                    others.append(allIdentities[pid].kill_another(votes))
-                elif isinstance(allIdentities[pid], Werewolf):
-                    manWin = True
-                else:
-                    pass
-            break
-        if not manWin:
-            for other in others:
-                if isinstance(allIdentities[other], Werewolf):
-                    manWin = True
-        broadcast(localize('MAN_WIN') if manWin else localize('WEREWOLF_WIN'))
-    else:
+    if len(frequency) == len(players):
         for player in players:
             if isinstance(player, Werewolf):
                 broadcast(localize('WEREWOLF_WIN'))
                 break
         else:
             broadcast(localize('MAN_WIN'))
+    else:
+        for i in range(1, len(frequency)):
+            if len(set([countTuple[1] for countTuple in frequency.most_common(i)])) != 1:
+                check_identities(frequency.most_common(i-1))
+                break
+        else:
+            check_identities(frequency.most_common(len(frequency)))
+
+def check_identities(counter):
+    manWin = False
+    others = []
+    for pid in [countTuple[0] for countTuple in counter]:
+        if isinstance(players[pid], Hunter):
+            others.append(players[pid].kill_another(votes))
+        elif isinstance(players[pid], Werewolf):
+            manWin = True
+        else:
+            pass
+    if not manWin:
+        for other in others:
+            if isinstance(players[other], Werewolf):
+                manWin = True
+    broadcast(localize('MAN_WIN') if manWin else localize('WEREWOLF_WIN'))
+        
 
 if __name__ == '__main__':
     t = ServerThread()
@@ -92,7 +104,9 @@ if __name__ == '__main__':
             if gameServer.get_client_count() <= 10:
                 gameServer.broadcast_players()
                 startGame(gameServer.get_client_count())
+                for player in players:
+                    print(str(player))
                 input('Gaming...')
                 endGame()
         except Exception as e:
-            print(e)
+            traceback.print_exc()

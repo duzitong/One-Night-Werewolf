@@ -29,10 +29,10 @@ class GameServer(socketserver.ThreadingTCPServer):
     def get_selection_from_client(self, playerId, description):
         return self.clients[playerId].getResponse(description)
 
-    def get_votes(self, description):
+    def get_votes(self, description, length):
         results = {}
         vthreads = []
-        for i, client in enumerate(self.clients):
+        for i, client in enumerate(self.clients[:length]):
             vt = VoteThread(client, description, results, i, self.get_client_count())
             vthreads.append(vt)
             vt.start()

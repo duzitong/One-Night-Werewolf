@@ -76,6 +76,9 @@ translation = {
     },
     'YOU_ARE': {
         'en': 'You are: {}'
+    },
+    'YOUR_FINAL_IDENTITY': {
+        'en': 'Your final identity is: {}'
     }
 }
 
