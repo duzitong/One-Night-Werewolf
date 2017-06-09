@@ -51,10 +51,6 @@ class User(threading.Thread):
 
 if __name__ == '__main__':
     nickname = input('Please input your nickname: ')
-    while (True):
-        try:
-            client = User(socket.create_connection(('localhost', 19420)), nickname)
-            client.start()
-            break
-        except Exception as e:
-            pass
+    hostname = input('Enter the host to join: ')
+    client = User(socket.create_connection((hostname, 19420)), nickname)
+    client.start()

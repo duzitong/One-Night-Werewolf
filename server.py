@@ -117,4 +117,4 @@ class VoteThread(threading.Thread):
          assert vote < self.limit
          self.results[self.pid] = vote
 
-gameServer = GameServer(('localhost', 19420), IOHandler)
+gameServer = GameServer(('0.0.0.0', 19420), IOHandler)
