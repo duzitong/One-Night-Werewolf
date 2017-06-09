@@ -1,6 +1,9 @@
 # 一夜狼人
 控制台版一夜狼人
 
+## EXE依赖：
+Microsoft Visual C++ 2015 Redistributable
+
 ## 身份：
 - JuniorWerewolf: 小狼
 - SeniorWerewolf: 大狼
