@@ -76,8 +76,11 @@ class IOHandler(socketserver.StreamRequestHandler):
 
     def setup(self):
         super().setup()
-        self.server.add_client(self)
         self.nickname = self.getNicknameFromPeer()
+        if self.nickname is None:
+            self.onFinished()
+            return
+        self.server.add_client(self)
         print('{}:{} entered'.format(self.nickname, self.name))
 
     def handle(self):

@@ -13,37 +13,37 @@ allIdentities = {
     6: [
         JuniorWerewolf(players, remainings),
         SeniorWerewolf(players, remainings),
-        Mason(players, remainings),
         Seer(players, remainings),
         Witch(players, remainings),
         Robber(players, remainings),
         Troublemaker(players, remainings),
         Drunk(players, remainings),
+        Hunter(players, remainings),
         Hunter(players, remainings)
     ],
     7: [
         JuniorWerewolf(players, remainings),
         SeniorWerewolf(players, remainings),
-        Mason(players, remainings),
         Seer(players, remainings),
         Witch(players, remainings),
         Robber(players, remainings),
         Troublemaker(players, remainings),
         Drunk(players, remainings),
         Insomniac(players, remainings),
+        Hunter(players, remainings),
         Hunter(players, remainings)
     ],
     8: [
         JuniorWerewolf(players, remainings),
         SeniorWerewolf(players, remainings),
         Minion(players, remainings),
-        Mason(players, remainings),
         Seer(players, remainings),
         Witch(players, remainings),
         Robber(players, remainings),
         Troublemaker(players, remainings),
         Drunk(players, remainings),
         Insomniac(players, remainings),
+        Hunter(players, remainings),
         Hunter(players, remainings)
     ],
     9:[
