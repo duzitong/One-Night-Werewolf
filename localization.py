@@ -69,7 +69,7 @@ translation = {
         'en': 'Vote result is {}.\nSelect one player to kill: '
     },
     'MAN_WIN': {
-        'en': 'Men win! Good triumphing over evil!'
+        'en': 'Human win! Good triumphing over evil!'
     },
     'WEREWOLF_WIN': {
         'en': 'Werewolves win! Deceive the world!'

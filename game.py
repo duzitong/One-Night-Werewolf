@@ -9,22 +9,74 @@ import traceback
 
 players = []
 remainings = []
-allIdentities = [
-    JuniorWerewolf(players, remainings),
-    SeniorWerewolf(players, remainings),
-    Minion(players, remainings),
-    Mason(players, remainings),
-    Mason(players, remainings),
-    Seer(players, remainings),
-    Witch(players, remainings),
-    Robber(players, remainings),
-    Troublemaker(players, remainings),
-    Drunk(players, remainings),
-    Insomniac(players, remainings),
-    Hunter(players, remainings),
-    Hunter(players, remainings)
-]
-WOLF_TIME = 25
+allIdentities = {
+    6: [
+        JuniorWerewolf(players, remainings),
+        SeniorWerewolf(players, remainings),
+        Mason(players, remainings),
+        Seer(players, remainings),
+        Witch(players, remainings),
+        Robber(players, remainings),
+        Troublemaker(players, remainings),
+        Drunk(players, remainings),
+        Hunter(players, remainings)
+    ],
+    7: [
+        JuniorWerewolf(players, remainings),
+        SeniorWerewolf(players, remainings),
+        Mason(players, remainings),
+        Seer(players, remainings),
+        Witch(players, remainings),
+        Robber(players, remainings),
+        Troublemaker(players, remainings),
+        Drunk(players, remainings),
+        Insomniac(players, remainings),
+        Hunter(players, remainings)
+    ],
+    8: [
+        JuniorWerewolf(players, remainings),
+        SeniorWerewolf(players, remainings),
+        Minion(players, remainings),
+        Mason(players, remainings),
+        Seer(players, remainings),
+        Witch(players, remainings),
+        Robber(players, remainings),
+        Troublemaker(players, remainings),
+        Drunk(players, remainings),
+        Insomniac(players, remainings),
+        Hunter(players, remainings)
+    ],
+    9:[
+        JuniorWerewolf(players, remainings),
+        SeniorWerewolf(players, remainings),
+        Minion(players, remainings),
+        Mason(players, remainings),
+        Mason(players, remainings),
+        Seer(players, remainings),
+        Witch(players, remainings),
+        Robber(players, remainings),
+        Troublemaker(players, remainings),
+        Drunk(players, remainings),
+        Insomniac(players, remainings),
+        Hunter(players, remainings)
+    ],
+    10: [
+        JuniorWerewolf(players, remainings),
+        SeniorWerewolf(players, remainings),
+        Minion(players, remainings),
+        Mason(players, remainings),
+        Mason(players, remainings),
+        Seer(players, remainings),
+        Witch(players, remainings),
+        Robber(players, remainings),
+        Troublemaker(players, remainings),
+        Drunk(players, remainings),
+        Insomniac(players, remainings),
+        Hunter(players, remainings),
+        Hunter(players, remainings)
+    ]
+}
+WOLF_TIME = 20
 MAN_TIME = 10
 
 
@@ -34,21 +86,21 @@ class ServerThread(threading.Thread):
 
 
 def startGame(n):
-    random.shuffle(allIdentities)
+    random.shuffle(allIdentities[n])
     del players[:]
     del remainings[:]
     for i in range(n):
-        players.append(allIdentities[i])
+        players.append(allIdentities[n][i])
         players[i].setId(i)
         sendOutput(i, localize('YOU_ARE').format(players[i]))
     for i in range(n, n+3):
-        remainings.append(allIdentities[i])
+        remainings.append(allIdentities[n][i])
 
     steps = [Werewolf, Minion, Mason, Seer, Witch, Robber, Troublemaker, Drunk, Insomniac]
     for step in steps:
         btime = time.time()
         broadcast(localize('STEP_START').format(step.__name__))
-        for player in allIdentities[:n]:
+        for player in allIdentities[n][:n]:
             if isinstance(player, step):
                 player.action()
         if step == Werewolf:
@@ -73,12 +125,12 @@ def endGame():
     else:
         for i in range(1, len(frequency)):
             if len(set([countTuple[1] for countTuple in frequency.most_common(i)])) != 1:
-                check_identities(frequency.most_common(i-1))
+                check_identities(frequency.most_common(i-1), votes)
                 break
         else:
-            check_identities(frequency.most_common(len(frequency)))
+            check_identities(frequency.most_common(len(frequency)), votes)
 
-def check_identities(counter):
+def check_identities(counter, votes):
     manWin = False
     others = []
     for pid in [countTuple[0] for countTuple in counter]:
@@ -93,7 +145,7 @@ def check_identities(counter):
             if isinstance(players[other], Werewolf):
                 manWin = True
     broadcast(localize('MAN_WIN') if manWin else localize('WEREWOLF_WIN'))
-        
+
 
 if __name__ == '__main__':
     t = ServerThread()
@@ -102,10 +154,12 @@ if __name__ == '__main__':
         try:
             input('Wait for players...')
             if gameServer.get_client_count() <= 10:
+                assert gameServer.get_client_count() in allIdentities
                 gameServer.broadcast_players()
                 startGame(gameServer.get_client_count())
                 for player in players:
                     print(str(player))
+                broadcast('Start talking')
                 input('Gaming...')
                 endGame()
         except Exception as e:

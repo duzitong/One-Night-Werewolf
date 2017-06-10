@@ -1,6 +1,7 @@
 import pickle
 import socket
 import threading
+import json
 
 
 class User(threading.Thread):
@@ -48,7 +49,18 @@ class User(threading.Thread):
 
 
 if __name__ == '__main__':
-    nickname = input('Please input your nickname: ')
-    hostname = input('Enter the host to join: ')
+    nickname = None
+    hostname = None
+    try:
+        with open('config.json', 'r') as f:
+            config = json.load(f)
+            nickname = config['Nickname']
+            hostname = config['Hostname']
+    except Exception as e:
+        print(e)
+    if nickname is None:
+        nickname = input('Please input your nickname: ')
+    if hostname is None:
+        hostname = input('Enter the host to join: ')
     client = User(socket.create_connection((hostname, 19420)), nickname)
     client.start()
